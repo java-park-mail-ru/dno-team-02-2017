@@ -1,0 +1,5 @@
+application/Application.class
+user/UserProfile.class
+accountService/AccountService.class
+controller/UserAuthController.class
+di/ServiceConfiguration.class
