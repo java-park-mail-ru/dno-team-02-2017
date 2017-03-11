@@ -26,6 +26,8 @@ public class UserProfile {
         this.password = password;
     }
 
+    public boolean isEmpty(){ return email == null; }
+
     public String getEmail() {
         return email;
     }

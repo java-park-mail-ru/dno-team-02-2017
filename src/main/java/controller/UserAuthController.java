@@ -10,6 +10,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.web.bind.annotation.*;
 import user.UserProfile;
 
+
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,9 +27,11 @@ public class UserAuthController {
             accountService.deleteSession(req.getSession().getId());
         }
         JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject1 = new JsonObject();
         jsonObject.addProperty("message", "succes");
         jsonObject.addProperty("key",  "200");
-        resp.getWriter().write(jsonObject.toString());
+        jsonObject1.add("response", jsonObject.getAsJsonObject());
+        resp.getWriter().write(jsonObject1.toString());
     }
 
     @RequestMapping(value = "/signIn", method = RequestMethod.POST)
@@ -41,20 +44,30 @@ public class UserAuthController {
         }
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject1 = new JsonObject();
         UserProfile userProfile = gson.fromJson(jb.toString(), UserProfile.class);
 
+        if(userProfile.isEmpty()){
+            jsonObject.addProperty("message", "You have incorrect data");
+            jsonObject.addProperty("key", "401");
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
+            return;
+        }
         if (accountService.isSignUp(userProfile.getEmail())) {
             jsonObject.addProperty("message", "succes");
+            jsonObject.addProperty("User", gson.toJson(accountService.getUserOfSession(req.getSession().getId())));
             jsonObject.addProperty("key",  "200");
             if (!accountService.isLogIn(req.getSession().getId())) {
                 accountService.addSession(req.getSession().getId(), userProfile);
             }
-            resp.getWriter().write(jsonObject.toString());
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
         } else {
-            jsonObject.addProperty("message", "you don't sugnUp");
+            jsonObject.addProperty("message", "you don't signUp");
             jsonObject.addProperty("key",  "400");
-            resp.getWriter().write(jsonObject.toString());
-        }
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());        }
     }
 
 
@@ -70,15 +83,20 @@ public class UserAuthController {
 
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject1 = new JsonObject();
         UserProfile userProfile = gson.fromJson(jb.toString(), UserProfile.class);
         if (accountService.isLogIn(req.getSession().getId())){
-            jsonObject.addProperty("User", gson.toJson(accountService.getUserOfSession(req.getSession().getId())));
+
             jsonObject.addProperty("key", "200");
-            resp.getWriter().write(gson.toJson(jsonObject.toString()));
+            jsonObject.addProperty("User", gson.toJson(accountService.getUserOfSession(req.getSession().getId())));
+            jsonObject.addProperty("message", "succes");
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
         } else {
             jsonObject.addProperty("message", "you don't is login");
             jsonObject.addProperty("key", "400");
-            resp.getWriter().write(gson.toJson(jsonObject.toString()));
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
         }
     }
 
@@ -92,20 +110,24 @@ public class UserAuthController {
         }
         Gson gson = new Gson();
         UserProfile userProfile = gson.fromJson(jb.toString(), UserProfile.class);
+        JsonObject jsonObject1 = new JsonObject();
         if(accountService.isLogIn(req.getSession().getId())) {
+            JsonObject jsonObject = new JsonObject();
             accountService.getUserOfSession(req.getSession().getId()).setEmail(userProfile.getEmail());
             accountService.getUserOfSession(req.getSession().getId()).setLogin(userProfile.getLogin());
             accountService.getUserOfSession(req.getSession().getId()).setPassword(userProfile.getPassword());
-            JsonObject jsonObject = new JsonObject();
-            jsonObject.addProperty("message", "succes");
+
             jsonObject.addProperty("key", "200");
-            resp.getWriter().write(jsonObject.toString());
+            jsonObject.addProperty("User", gson.toJson(userProfile));
+            jsonObject.addProperty("message", "succes");
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
         } else {
             JsonObject jsonObject = new JsonObject();
             jsonObject.addProperty("message", "you don't is login");
             jsonObject.addProperty("key", "400");
-            resp.getWriter().write(jsonObject.toString());
-        }
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());        }
     }
 
 
@@ -119,18 +141,29 @@ public class UserAuthController {
         }
         Gson gson = new Gson();
         JsonObject jsonObject = new JsonObject();
+        JsonObject jsonObject1 = new JsonObject();
         UserProfile userProfile = gson.fromJson(jb.toString(), UserProfile.class);
-
+        if(userProfile.isEmpty()){
+            jsonObject.addProperty("message", "You have incorrect data");
+            jsonObject.addProperty("key", "401");
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
+            return;
+        }
         if (accountService.isSignUp(userProfile.getEmail())) {
-            jsonObject.addProperty("message", "you signUp, enter other data");
+            jsonObject.addProperty("message", "you already signUp, enter other data");
             jsonObject.addProperty("key", "400");
-            resp.getWriter().write(jsonObject.toString());
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
         } else {
             accountService.addSession(req.getSession().getId(), userProfile);
             accountService.addUser(userProfile);
-            jsonObject.addProperty("message", "success");
+
             jsonObject.addProperty("key", "200");
-            resp.getWriter().write(jsonObject.toString());
+            jsonObject.addProperty("User", gson.toJson(userProfile));
+            jsonObject.addProperty("message", "success");
+            jsonObject1.add("response", jsonObject.getAsJsonObject());
+            resp.getWriter().write(jsonObject1.toString());
 
         }
     }
