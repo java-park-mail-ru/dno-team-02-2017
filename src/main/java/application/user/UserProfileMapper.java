@@ -6,12 +6,15 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 
 public class UserProfileMapper implements RowMapper<UserProfile> {
+    @Override
     public UserProfile mapRow(ResultSet rs, int rowNum) throws SQLException {
-        UserProfile user = new UserProfile();
+        final UserProfile user = new UserProfile();
         user.setEmail(rs.getString("email"));
         user.setUsername(rs.getString("nickname"));
         user.setPassword(rs.getString("password"));
-        user.setRating(rs.getInt("rating"));
+        user.setWins(rs.getInt("wins"));
+        user.setLosses(rs.getInt("losses"));
+        user.setDraws(rs.getInt("draws"));
         return user;
     }
 }

@@ -1,4 +1,4 @@
-package application.accountService;
+package application.accountservice;
 
 import org.springframework.stereotype.Component;
 import org.springframework.stereotype.Service;
@@ -15,10 +15,6 @@ public class AccountService {
 
     public void addUser(UserProfile userProfile) {
         profiles.put(userProfile.getEmail(), userProfile);
-    }
-
-    public int getSize() {
-        return profiles.size();
     }
 
     public UserProfile getUser(String id) {
